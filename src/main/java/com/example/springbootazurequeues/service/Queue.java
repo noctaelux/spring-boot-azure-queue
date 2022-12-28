@@ -6,9 +6,11 @@ public interface Queue {
 
     void createQueue();
 
+    String getQueueName();
+
     void addQueueMessage(String message);
 
-    void peekQueueMessage();
+    String peekQueueMessage();
 
     void updateQueueMessage(String searchString, String updatedContents);
 
@@ -18,7 +20,7 @@ public interface Queue {
 
     void dequeueMessage();
 
-    List listQueues();
+    List<?>listQueues();
 
     void deleteMessageQueue();
 
