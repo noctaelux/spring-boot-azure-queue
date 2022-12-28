@@ -9,7 +9,6 @@ import com.azure.storage.queue.models.QueueProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.List;
 
 /**
@@ -50,26 +49,40 @@ public class AzureQueue implements Queue {
         queueClient.sendMessage(message);
     }
 
+    /**
+     * Obtiene el primer mensaje de la cola.
+     * @return el primer mensaje en la cola.
+     */
     @Override
     public String peekQueueMessage() {
         PeekedMessageItem peekedMessageItem = queueClient.peekMessage();
-        return peekedMessageItem.getMessageText();
+        return peekedMessageItem.getBody().toString();
     }
 
+    /**
+     * Modifica un mensaje en la cola el parámetro <code>searchString</code> funciona como método de búsqueda y el
+     * parámetro <code>updatedContetents</code> reemplazará el contenido anterior del mensaje.
+     * @param searchString contenido del primer mensaje que tenga esta descripción
+     * @param updatedContents el nuevo contenido que tendrá el mensaje
+     */
     @Override
     public void updateQueueMessage(String searchString, String updatedContents) {
         QueueProperties queueProperties = queueClient.getProperties();
         for(QueueMessageItem message: queueClient.receiveMessages(queueProperties.getApproximateMessagesCount())){
-            if(message.getMessageText().contains(searchString)){
+            if(message.getBody().toString().contains(searchString)){
                 queueClient.updateMessage(message.getMessageId(),
                         message.getPopReceipt(),
                         updatedContents,
-                        Duration.ofSeconds(3));
+                        null);
                 break;
             }
         }
     }
 
+    /**
+     * Actualizará el contenido que se encuentra al final de la cola.
+     * @param updatedContents El nuevo contenido del mensaje
+     */
     @Override
     public void updateFirstQueueMessage(String updatedContents) {
         QueueMessageItem message = queueClient.receiveMessage();
@@ -77,16 +90,23 @@ public class AzureQueue implements Queue {
             queueClient.updateMessage(message.getMessageId(),
                     message.getPopReceipt(),
                     updatedContents,
-                    Duration.ofSeconds(3));
+                    null);
         }
     }
 
+    /**
+     * Obtiene el número actual de mensajes en la cola.
+     * @return el número de mensajes en la cola actual.
+     */
     @Override
     public long getQueueLength() {
         QueueProperties properties = queueClient.getProperties();
         return properties.getApproximateMessagesCount();
     }
 
+    /**
+     * Elimina el primer mensaje en la cola.
+     */
     @Override
     public void dequeueMessage() {
         QueueMessageItem message = queueClient.receiveMessage();
@@ -95,11 +115,18 @@ public class AzureQueue implements Queue {
         }
     }
 
+    /**
+     * Obtiene una lista de los queues existentes en el storage queue.
+     * @return La lista de los queues existentes en el storage.
+     */
     @Override
     public List<QueueItem> listQueues() {
         return queueServiceClient.listQueues().stream().toList();
     }
 
+    /**
+     * Elimina el queue.
+     */
     @Override
     public void deleteMessageQueue() {
         queueClient.delete();

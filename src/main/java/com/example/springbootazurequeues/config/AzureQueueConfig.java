@@ -23,15 +23,14 @@ public class AzureQueueConfig {
     @Value("${app.azure.queue.connection.account-key}")
     private String ACC_KEY;
 
-    private String CONNECTION_STRING;
+    private static String CONNECTION_STRING;
 
     @Bean
     public void setConnectionString(){
-        CONNECTION_STRING = new StringBuilder()
-                .append("DefaultEndpointsProtocol=").append(DEF_PROTOCOL).append(";")
-                .append("AccountName=").append(ACC_NAME).append(";")
-                .append("AccountKey=").append(ACC_KEY)
-                .toString();
+        CONNECTION_STRING = "DefaultEndpointsProtocol=" + DEF_PROTOCOL + ";" +
+                "AccountName=" + ACC_NAME + ";" +
+                "AccountKey=" + ACC_KEY;
+
     }
 
     @Bean
