@@ -7,8 +7,11 @@ import com.azure.storage.queue.models.QueueItem;
 import com.azure.storage.queue.models.QueueMessageItem;
 import com.azure.storage.queue.models.QueueProperties;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +21,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AzureQueue implements Queue {
+
+    Logger log = LoggerFactory.getLogger(AzureQueue.class);
 
     private final QueueClient queueClient;
     private final QueueServiceClient queueServiceClient;
@@ -121,7 +126,13 @@ public class AzureQueue implements Queue {
      */
     @Override
     public List<QueueItem> listQueues() {
-        return queueServiceClient.listQueues().stream().toList();
+        List<QueueItem> queues = new ArrayList<>();
+        try {
+            queues = queueServiceClient.listQueues().stream().toList();
+        } catch (Exception ex){
+            log.warn(ex.getMessage());
+        }
+        return queues;
     }
 
     /**

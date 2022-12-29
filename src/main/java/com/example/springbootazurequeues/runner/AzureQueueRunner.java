@@ -62,7 +62,9 @@ public class AzureQueueRunner implements CommandLineRunner {
         queue.dequeueMessage();
 
         //Imprimirá los nombres de todos los queues existentes en el storage queue
-        queue.listQueues().forEach(i -> log.info(i.getName()));
+        if(!queue.listQueues().isEmpty()){
+            queue.listQueues().forEach(i -> log.info(i.getName()));
+        }
 
         //Elimina el queue creado al principio.
         queue.deleteMessageQueue();
